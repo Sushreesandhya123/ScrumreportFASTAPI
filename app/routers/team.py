@@ -29,7 +29,7 @@ def create_team(team: TeamCreate, db: Session = Depends(get_db)):
     db_team = Team(team_name=team.team_name)
     db.add(db_team)
     db.commit()
-    db.refresh(db_team)
+    db.refresh(db_team) 
     return db_team
 
 @router.get("/teams/", response_model=List[TeamResponse])
@@ -48,10 +48,10 @@ def update_team(team_id: int, team: TeamUpdate, db: Session = Depends(get_db)):
     db_team = db.query(Team).filter(Team.team_id == team_id).first()
     if db_team is None:
         raise HTTPException(status_code=404, detail="Team not found")
-    
     db_team.team_name = team.team_name
     db.commit()
     db.refresh(db_team)
+    
     return db_team
 
 @router.delete("/teams/{team_id}")

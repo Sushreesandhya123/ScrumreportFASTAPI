@@ -11,7 +11,6 @@ router = APIRouter()
 
 
 class SprintBase(BaseModel):
-    team_id: int
     sprint_number: int
     sprint_duration: str
     date_of_report: date = Field(..., description="Date of the report in YYYY-MM-DD format")
@@ -25,6 +24,7 @@ class SprintUpdate(SprintBase):
 
 class SprintResponse(SprintBase):
     sprint_id: int
+    team_id: int  # This will be included in the response
 
     class Config:
         orm_mode = True
@@ -38,14 +38,16 @@ def get_db():
 
 @router.post("/sprints/", response_model=SprintResponse)
 def create_sprint(sprint: SprintCreate, db: Session = Depends(get_db)):
-    team = db.query(Team).filter(Team.team_id == sprint.team_id).first()
+    team = db.query(Team).order_by(Team.team_id.desc()).first() 
     if team is None:
         raise HTTPException(status_code=404, detail="Team not found")
-
-    db_sprint = Sprint(**sprint.dict())
+    db_sprint = Sprint(
+        team_id=team.team_id, 
+        **sprint.dict()
+    )
     db.add(db_sprint)
     db.commit()
-    db.refresh(db_sprint)
+    db.refresh(db_sprint)  
     return db_sprint
 
 @router.get("/sprints/", response_model=List[SprintResponse])

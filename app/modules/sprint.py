@@ -13,3 +13,6 @@ class Sprint(Base):
     scrum_master = Column(String(255), nullable=False)
     team = relationship("Team")
     individual_performance = relationship("IndividualPerformance", back_populates="sprint")
+    sprintgoals = relationship("Sprintgoal", back_populates="sprint", cascade="all, delete-orphan")
+
+    

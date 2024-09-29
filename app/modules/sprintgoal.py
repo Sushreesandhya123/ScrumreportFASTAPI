@@ -9,11 +9,10 @@ class StatusEnum(enum.Enum):
     BACKLOG = "Backlog"
     PENDING = "Pending"
 class Sprintgoal(Base):
-    __tablename__ = 'sprintgoal'  # Ensure this matches with your database
-
+    __tablename__ = 'sprintgoal'  
     id = Column(Integer, primary_key=True, index=True)
     description = Column(String(300))
     status = Column(Enum(StatusEnum), nullable=False)  
-    sprint_id = Column(Integer, ForeignKey('sprints.sprint_id'), nullable=False)
 
-sprint = relationship("Sprint", back_populates="sprintgoals")
+    sprint_id = Column(Integer, ForeignKey('sprints.sprint_id'), nullable=False)
+    sprint = relationship("Sprint", back_populates="sprintgoals")
