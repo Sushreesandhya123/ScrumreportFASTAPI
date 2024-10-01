@@ -24,7 +24,7 @@ class SprintUpdate(SprintBase):
 
 class SprintResponse(SprintBase):
     sprint_id: int
-    team_id: int  # This will be included in the response
+    team_id: int 
 
     class Config:
         orm_mode = True

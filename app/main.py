@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.database import engine
-from app.modules.sprintgoal import Base as SprintgoalBase  # Importing Base from modules
+from app.modules.sprintgoal import Base as SprintgoalBase  
 from app.modules.individualperformance import Base as IndividualPerformanceBase
 from app.modules.sprintprogress import Base as SprintProgress 
 from app.routers import sprintgoal
@@ -12,6 +12,7 @@ from app.routers import individualperformance
 from app.routers import velocity
 from app.routers import blockers
 from app.routers import production_pipeline_releases
+from app.routers import imageupload
 
 app = FastAPI(title="POC")
 app.include_router(
@@ -54,15 +55,18 @@ app.include_router(
     tags=["Productionpipeline"],
     prefix="/Productionpipeline"
 ),
+# app.include_router(
+#     imageupload.router,
+#     tags=["ImageUpload"],
+#     prefix="/ImageUpload"
+# ),
 
 SprintgoalBase.metadata.create_all(bind=engine)
 IndividualPerformanceBase.metadata.create_all(bind=engine)
 SprintProgress.metadata.create_all(bind=engine)
 origins = [
-    "http://localhost:3000",  # React app URL
+    "http://localhost:3000", 
 ]
-
-# Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,

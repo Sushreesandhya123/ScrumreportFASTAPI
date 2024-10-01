@@ -1,10 +1,8 @@
 from sqlalchemy import Column, Integer, String, Date, ForeignKey
 from sqlalchemy.orm import relationship
 from app.database import Base
-
 class Sprint(Base):
     __tablename__ = 'sprints'
-
     sprint_id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     team_id = Column(Integer, ForeignKey('teams.team_id'), nullable=False)
     sprint_number = Column(Integer, nullable=False)

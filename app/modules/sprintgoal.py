@@ -3,7 +3,6 @@ from sqlalchemy.orm import relationship
 from app.database import Base
 import enum
 
-# Enum class for the sprint goal status
 class StatusEnum(enum.Enum):
     DONE = "Done"
     BACKLOG = "Backlog"

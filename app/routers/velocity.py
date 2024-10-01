@@ -20,6 +20,8 @@ class VelocityUpdate(VelocityBase):
 class VelocityResponse(VelocityBase):
     velocity_id: int
     sprint_id: int
+class Config:
+        orm_mode = True    
 
 
 def get_latest_sprint_id(db: Session) -> int:
