@@ -1,25 +1,44 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
 from typing import List
-from app.modules.schemas import IndividualPerformanceCreate, IndividualPerformanceUpdate, IndividualPerformanceResponse
+# from app.modules import IndividualPerformanceCreate, IndividualPerformanceUpdate, IndividualPerformanceResponse
 from app.modules.individualperformance import IndividualPerformance
 from app.database import get_db
 from app.modules.sprint import Sprint
+from pydantic import BaseModel
 router = APIRouter()
+
+
+class IndividualPerformanceBase(BaseModel):
+    member_name: str
+    planned_story_points: int
+    completed_story_points: int
+    incomplete_story_points: int
+class IndividualPerformanceCreate(IndividualPerformanceBase):
+    pass
+class IndividualPerformanceUpdate(IndividualPerformanceBase):
+    pass
+class IndividualPerformanceResponse(IndividualPerformanceBase):
+    performance_id: int
+    sprint_id: int
+class Config:
+        orm_mode = True    
+
+def get_latest_sprint_id(db: Session) -> int:
+    sprint = db.query(Sprint).order_by(Sprint.sprint_id.desc()).first()
+    if sprint is None:
+        raise HTTPException(status_code=404, detail="No sprints available")
+    return sprint.sprint_id
 
 @router.post("/individualperformance/", response_model=IndividualPerformanceResponse)
 def create_individual_performance(performance: IndividualPerformanceCreate, db: Session = Depends(get_db)):
-    # Check if sprint_id exists in sprints table
-    sprint = db.query(Sprint).filter(Sprint.sprint_id == performance.sprint_id).first()
-    if sprint is None:
-        raise HTTPException(status_code=404, detail="Sprint not found")
-    
-    # Create and save the new individual performance record
-    db_performance = IndividualPerformance(**performance.dict())
+    sprint_id = get_latest_sprint_id(db)
+    db_performance = IndividualPerformance(**performance.dict(), sprint_id=sprint_id)
     db.add(db_performance)
     db.commit()
     db.refresh(db_performance)
     return db_performance
+
 
 @router.get("/individualperformance/", response_model=List[IndividualPerformanceResponse])
 def read_individual_performances(db: Session = Depends(get_db)):
@@ -37,16 +56,15 @@ def update_individual_performance(performance_id: int, performance: IndividualPe
     db_performance = db.query(IndividualPerformance).filter(IndividualPerformance.performance_id == performance_id).first()
     if db_performance is None:
         raise HTTPException(status_code=404, detail="IndividualPerformance not found")
-    if performance.sprint_id:
-        sprint = db.query(Sprint).filter(Sprint.sprint_id == performance.sprint_id).first()
-        if not sprint:
-            raise HTTPException(status_code=404, detail="Sprint not found")
+    sprint_id = get_latest_sprint_id(db)
     for key, value in performance.dict(exclude_unset=True).items():
         setattr(db_performance, key, value)
+    db_performance.sprint_id = sprint_id
     
     db.commit()
     db.refresh(db_performance)
     return db_performance
+
 
 @router.delete("/individualperformance/{performance_id}")
 def delete_individual_performance(performance_id: int, db: Session = Depends(get_db)):

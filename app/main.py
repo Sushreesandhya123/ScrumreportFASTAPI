@@ -2,6 +2,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.database import engine
 from app.modules.sprintgoal import Base as SprintgoalBase  # Importing Base from modules
+from app.modules.individualperformance import Base as IndividualPerformanceBase
+from app.modules.sprintprogress import Base as SprintProgress 
 from app.routers import sprintgoal
 from app.routers import team
 from app.routers import sprint
@@ -54,7 +56,8 @@ app.include_router(
 ),
 
 SprintgoalBase.metadata.create_all(bind=engine)
-
+IndividualPerformanceBase.metadata.create_all(bind=engine)
+SprintProgress.metadata.create_all(bind=engine)
 origins = [
     "http://localhost:3000",  # React app URL
 ]

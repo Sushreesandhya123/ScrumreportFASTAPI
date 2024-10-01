@@ -29,7 +29,7 @@ class SprintgoalResponse(SprintgoalBase):
     id: int
     sprint_id: int  # Include sprint_id in response
 
-    class Config:
+class Config:
         orm_mode = True
 
 def get_latest_sprint_id(db: Session) -> int:
